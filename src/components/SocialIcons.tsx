@@ -2,85 +2,117 @@ import {
   FaGithub,
   FaInstagram,
   FaLinkedinIn,
-  FaXTwitter,
 } from "react-icons/fa6";
-import "./styles/SocialIcons.css";
+import { SiLeetcode } from "react-icons/si";
 import { TbNotes } from "react-icons/tb";
 import { useEffect } from "react";
 import HoverLinks from "./HoverLinks";
+import "./styles/SocialIcons.css";
 
 const SocialIcons = () => {
   useEffect(() => {
-    const social = document.getElementById("social") as HTMLElement;
+    const social = document.getElementById("social");
+
+    if (!social) return;
+
+    const cleanup: (() => void)[] = [];
 
     social.querySelectorAll("span").forEach((item) => {
       const elem = item as HTMLElement;
-      const link = elem.querySelector("a") as HTMLElement;
 
-      const rect = elem.getBoundingClientRect();
-      let mouseX = rect.width / 2;
-      let mouseY = rect.height / 2;
+      let targetX = 0;
+      let targetY = 0;
       let currentX = 0;
       let currentY = 0;
 
-      const updatePosition = () => {
-        currentX += (mouseX - currentX) * 0.1;
-        currentY += (mouseY - currentY) * 0.1;
+      let frame = 0;
 
-        link.style.setProperty("--siLeft", `${currentX}px`);
-        link.style.setProperty("--siTop", `${currentY}px`);
+      const animate = () => {
+        currentX += (targetX - currentX) * 0.15;
+        currentY += (targetY - currentY) * 0.15;
 
-        requestAnimationFrame(updatePosition);
+        elem.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+        frame = requestAnimationFrame(animate);
       };
 
-      const onMouseMove = (e: MouseEvent) => {
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+      const move = (e: MouseEvent) => {
+        const rect = elem.getBoundingClientRect();
 
-        if (x < 40 && x > 10 && y < 40 && y > 5) {
-          mouseX = x;
-          mouseY = y;
-        } else {
-          mouseX = rect.width / 2;
-          mouseY = rect.height / 2;
-        }
+        targetX = (e.clientX - rect.left - rect.width / 2) * 0.2;
+        targetY = (e.clientY - rect.top - rect.height / 2) * 0.2;
       };
 
-      document.addEventListener("mousemove", onMouseMove);
-
-      updatePosition();
-
-      return () => {
-        elem.removeEventListener("mousemove", onMouseMove);
+      const leave = () => {
+        targetX = 0;
+        targetY = 0;
       };
+
+      elem.addEventListener("mousemove", move);
+      elem.addEventListener("mouseleave", leave);
+
+      animate();
+
+      cleanup.push(() => {
+        elem.removeEventListener("mousemove", move);
+        elem.removeEventListener("mouseleave", leave);
+        cancelAnimationFrame(frame);
+      });
     });
+
+    return () => cleanup.forEach((fn) => fn());
   }, []);
 
   return (
     <div className="icons-section">
-      <div className="social-icons" data-cursor="icons" id="social">
+      <div className="social-icons" id="social">
         <span>
-          <a href="https://github.com" target="_blank">
+          <a
+            href="https://github.com/CrwazzyCupcakes"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <FaGithub />
           </a>
         </span>
+
         <span>
-          <a href="https://www.linkedin.com" target="_blank">
+          <a
+            href="https://www.linkedin.com/in/-mohammed-afnan/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <FaLinkedinIn />
           </a>
         </span>
+
         <span>
-          <a href="https://x.com" target="_blank">
-            <FaXTwitter />
+          <a
+            href="https://leetcode.com/u/CrwazzyCupcakes/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SiLeetcode />
           </a>
         </span>
+
         <span>
-          <a href="https://www.instagram.com" target="_blank">
+          <a
+            href="https://www.instagram.com/afnan.5578/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <FaInstagram />
           </a>
         </span>
       </div>
-      <a className="resume-button" href="#">
+
+      <a
+        className="resume-button"
+        href="/resume.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <HoverLinks text="RESUME" />
         <span>
           <TbNotes />

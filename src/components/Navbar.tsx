@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HoverLinks from "./HoverLinks";
 import { gsap } from "gsap";
-import { ScrollSmoother } from "gsap-trial/ScrollSmoother";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
 import "./styles/Navbar.css";
 
 gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
+
 export let smoother: ScrollSmoother;
 
 const Navbar = () => {
@@ -23,46 +24,68 @@ const Navbar = () => {
     smoother.scrollTop(0);
     smoother.paused(true);
 
-    let links = document.querySelectorAll(".header ul a");
-    links.forEach((elem) => {
-      let element = elem as HTMLAnchorElement;
-      element.addEventListener("click", (e) => {
-        if (window.innerWidth > 1024) {
-          e.preventDefault();
-          let elem = e.currentTarget as HTMLAnchorElement;
-          let section = elem.getAttribute("data-href");
+    const links = document.querySelectorAll(".header ul a");
+
+    const handleClick = (e: Event) => {
+      if (window.innerWidth > 1024) {
+        e.preventDefault();
+        const target = e.currentTarget as HTMLAnchorElement;
+        const section = target.getAttribute("data-href");
+
+        if (section) {
           smoother.scrollTo(section, true, "top top");
         }
-      });
-    });
-    window.addEventListener("resize", () => {
-      ScrollSmoother.refresh(true);
-    });
+      }
+    };
+
+    links.forEach((link) => link.addEventListener("click", handleClick));
+
+    const handleResize = () => ScrollSmoother.refresh(true);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      links.forEach((link) =>
+        link.removeEventListener("click", handleClick)
+      );
+      window.removeEventListener("resize", handleResize);
+      smoother?.kill();
+    };
   }, []);
+
   return (
     <>
       <div className="header">
         <a href="/#" className="navbar-title" data-cursor="disable">
-          Logo
+          CrwazzyCupcakes
         </a>
+
         <a
-          href="mailto:example@mail.com"
+          href="mailto:afnanmohd5578@icloud.com"
           className="navbar-connect"
           data-cursor="disable"
         >
-          example@mail.com
+
         </a>
+
         <ul>
           <li>
             <a data-href="#about" href="#about">
               <HoverLinks text="ABOUT" />
             </a>
           </li>
+
           <li>
-            <a data-href="#work" href="#work">
-              <HoverLinks text="WORK" />
+            <a data-href="#education" href="#education">
+              <HoverLinks text="EDUCATION" />
             </a>
           </li>
+
+          <li>
+            <a data-href="#projects" href="#projects">
+              <HoverLinks text="PROJECTS" />
+            </a>
+          </li>
+
           <li>
             <a data-href="#contact" href="#contact">
               <HoverLinks text="CONTACT" />
